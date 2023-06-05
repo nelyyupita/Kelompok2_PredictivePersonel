@@ -14,7 +14,7 @@ left <- c("left", "stay", "","","")
 id <- c(1:1000)
 ui <- dashboardPage(
   dashboardHeader(
-    title = "HR Dashboard"
+    title = "Main Dashboard"
   ),
   dashboardSidebar(
     sidebarMenu(
