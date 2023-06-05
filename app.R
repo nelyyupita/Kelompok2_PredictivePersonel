@@ -38,43 +38,82 @@ ui <- dashboardPage(
                 valueBox("3552","Unprometed Employees", icon = icon("info"),color = "fuchsia",  width = 3),
               ),
               fluidRow(
-                column(
+                #Diagram 1
+                box(title = "Education Level", echarts4rOutput("total_education_level"), width = 3),
+                box(
+                  title = "Departement", 
+                  width = 3,
+                  echarts4rOutput("list_Department")
+                ),
+                box(
+                  title = "Age Distribution", 
+                  width = 3,
+                  echarts4rOutput("Age_Distribution")
+                ),
+                box(
+                  title = "Gender", 
+                  width = 3,
+                  echarts4rOutput("Gender")
+                ),
+              ),
+              #Diagram 2
+              fluidRow(
+                box(title = "Stock Level Option", echarts4rOutput("StockOptionLevel"), width = 4),
+                box(
+                  title = "Education Field", 
                   width = 4,
-                  selectInput(inputId = "x", 
-                              label = "Left or Stay :", 
-                              #choices = c("left","stay"),
-                              left,
-                              selected = 'left'),
-                ),
-                
-              ),
-              fluidRow(
-                box(title = "Employees by Roles", echarts4rOutput("visualisasi1"), width = 12),
-              ),
-              fluidRow(
-                box(
-                  title = "Employees by Salary Group", 
-                  width = 6,
-                  echarts4rOutput("visualisasi2")
+                  echarts4rOutput("EducationField")
                 ),
                 box(
-                  title = "Satisfaction & Evaluation",
-                  width = 6,
-                  echarts4rOutput("visualisasi3")
+                  title = "Over Time", 
+                  width = 4,
+                  echarts4rOutput("Over_Time")
+                ),
+                box(
+                  title = "Working Years",
+                  width = 4,
+                  echarts4rOutput("Working_Years")
+                ),
+                box(
+                  title = "Job Level",
+                  width = 4,
+                  echarts4rOutput("Job_Level")
+                ),
+                box(
+                  title = "Job Role",
+                  width = 4,
+                  echarts4rOutput("Job_Role")
                 )
               ),
+              #Diagram 3
               fluidRow(
+                box(title = "Job Satisfaction", echarts4rOutput("Job_Satisfaction"), width = 4),
                 box(
-                  title = "Employees by Projects Done",
-                  width = 6,
-                  echarts4rOutput("visualisasi4")
+                  title = "Job Involvement", 
+                  width = 4,
+                  echarts4rOutput("Job_Involvement")
                 ),
                 box(
-                  title = "Average Monthly Hours Distribution",
-                  width = 6,
-                  echarts4rOutput("visualisasi5")
+                  title = "Enviroment Satisfaction", 
+                  width = 4,
+                  echarts4rOutput("Environment_Satisfaction")
+                ),
+                box(
+                  title = "Relationship Satisfaction",
+                  width = 4,
+                  echarts4rOutput("Relationship_Satisfaction")
+                ),
+                box(
+                  title = "Work-Life Balance",
+                  width = 4,
+                  echarts4rOutput("Work_Life_Balance")
+                ),
+                box(
+                  title = "Performance Rating",
+                  width = 4,
+                  echarts4rOutput("Performance_Rating")
                 )
-              )
+              ),
       ),
       tabItem(
         tabName = "emp",
@@ -284,71 +323,200 @@ server <- function(input, output) {
   
   
   set.seed(122)
-  # histdata <- rnorm(500)
-  # 
-  # output$plot1 <- renderPlot({
-  #   data <- histdata[seq_len(input$slider)]
-  #   hist(data)
-  # })
+  output$total_education_level <- renderEcharts4r({
+    total_education_level <- data %>% 
+      group_by(Education) %>%
+      summarise(count= n())%>%
+      e_charts(Education) %>%
+      e_bar(count, name = "Education") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
   
-  # output$visualisasi1 <- renderEcharts4r({
-  #   data %>%
-  #     #filter(left == 0) %>%
-  #     #gunakan kolom sales untuk mengganti _
-  #     count(JobRole) %>%
-  #     arrange(n) %>%
-  #     e_charts(JobRole) %>%
-  #     e_bar(n, name = "Role") %>%
-  #     e_tooltip() %>%
-  #     e_legend() %>%
-  #     e_flip_coords()%>%
-  #     e_color(color = "teal", background = "white")  
-  # })
-  # 
-  # output$visualisasi2 <- renderEcharts4r({
-  #   data %>%
-  #     count(salary) %>%
-  #     e_charts(salary) %>%
-  #     e_pie(n, name = "salary") %>%
-  #     e_tooltip() %>%
-  #     e_legend()
-  #   
-  # })
+  output$list_Department <- renderEcharts4r({
+    list_Department <- data %>% 
+      group_by(Department) %>%
+      summarise(count= n())%>%
+      count(Department) %>%
+      e_charts(Department) %>%
+      e_pie(n, name = "Department") %>%
+      e_tooltip() %>%
+      e_legend()
+    
+  })
   
-  # output$visualisasi3 <- renderEcharts4r({
-  #   data %>%
-  #     count(last_evaluation) %>%
-  #     arrange(n) %>%
-  #     e_charts(last_evaluation) %>%
-  #     #e_charts(satisfaction_level) %>%
-  #     e_bar(n, name = "") %>%
-  #     e_tooltip() %>%
-  #     e_flip_coords() %>%
-  #     e_legend()
-  # })
+  output$Age_Distribution <- renderEcharts4r({
+    Age_Distribution <- data %>% 
+      group_by(Age) %>%
+      summarise(count= n())%>%
+      count(Age) %>%
+      e_charts(Age) %>%
+      e_pie(n, name = "Age") %>%
+      e_tooltip() %>%
+      e_legend()
+  })
   
-  # output$visualisasi4 <- renderEcharts4r({
-  #   data %>%
-  #     count(sales) %>%
-  #     arrange(n) %>%
-  #     e_charts(sales) %>%
-  #     e_bar(n, name = "sales") %>%
-  #     e_tooltip() %>%
-  #     e_legend() %>%
-  #     e_flip_coords() %>%
-  #     e_color(color = "teal", background = "white")  
-  # })
+  output$Gender <- renderEcharts4r({
+    Gender <- data %>% 
+      group_by(Gender) %>%
+      summarise(count= n())%>%
+      count(Gender) %>%
+      e_charts(Gender) %>%
+      e_pie(n, name = "Gender") %>%
+      e_tooltip() %>%
+      e_legend()
+  })
   
-  # output$visualisasi5 <- renderEcharts4r({
-  #   data %>%
-  #     count(sales) %>%
-  #     arrange(n) %>%
-  #     e_charts(sales) %>%
-  #     e_bar(n, name = "sales") %>%
-  #     e_tooltip() %>%
-  #     e_legend()
-  #   
-  # })
+  #DIAGRAM 2
+  output$StockOptionLevel <- renderEcharts4r({
+    Stock_Level_Option <- data %>% 
+      group_by(StockOptionLevel) %>%
+      summarise(count= n())%>%
+      e_charts(StockOptionLevel) %>%
+      e_bar(count, name = "StockOptionLevel") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$EducationField <- renderEcharts4r({
+    Education_Field <- data %>% 
+      group_by(EducationField) %>%
+      summarise(count= n())%>%
+      e_charts(EducationField) %>%
+      e_bar(count, name = "EducationField") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Over_Time <- renderEcharts4r({
+    Over_Time <- data %>% 
+      group_by(OverTime) %>%
+      summarise(count= n())%>%
+      count(OverTime) %>%
+      e_charts(OverTime) %>%
+      e_pie(n, name = "Over_Time") %>%
+      e_tooltip() %>%
+      e_legend()
+    
+  })
+  
+  #DIAGRAM 3
+  
+  output$Working_Years <- renderEcharts4r({
+    Working_Years <- data %>% 
+      group_by(YearsAtCompany) %>%
+      summarise(count= n())%>%
+      count(YearsAtCompany) %>%
+      e_charts(YearsAtCompany) %>%
+      e_pie(n, name = "YearsAtCompany") %>%
+      e_tooltip() %>%
+      e_legend()
+    
+  })
+  
+  output$Job_Level <- renderEcharts4r({
+    Job_Level <- data %>% 
+      group_by(JobLevel) %>%
+      summarise(count= n()) %>%
+      e_charts(JobLevel) %>%
+      e_bar(count, name = "JobLevel") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Job_Role <- renderEcharts4r({
+    Job_Role <- data %>% 
+      group_by(JobRole) %>%
+      summarise(count= n())%>%
+      e_charts(JobRole) %>%
+      e_bar(count, name = "JobRole") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  #DIAGRAM 3
+  
+  output$Job_Satisfaction <- renderEcharts4r({
+    Job_Satisfaction <- data %>% 
+      group_by(JobSatisfaction) %>%
+      summarise(count= n())%>%
+      e_charts(JobSatisfaction) %>%
+      e_bar(count, name = "JobSatisfaction") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Job_Involvement <- renderEcharts4r({
+    Job_Involvement <- data %>% 
+      group_by(JobInvolvement) %>%
+      summarise(count= n())%>%
+      e_charts(JobInvolvement) %>%
+      e_bar(count, name = "JobInvolvement") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Environment_Satisfaction <- renderEcharts4r({
+    Environment_Satisfaction <- data %>% 
+      group_by(EnvironmentSatisfaction) %>%
+      summarise(count= n())%>%
+      e_charts(EnvironmentSatisfaction) %>%
+      e_bar(count, name = "EnvironmentSatisfaction") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Relationship_Satisfaction <- renderEcharts4r({
+    Relationship_Satisfaction <- data %>% 
+      group_by(RelationshipSatisfaction) %>%
+      summarise(count= n())%>%
+      e_charts(RelationshipSatisfaction) %>%
+      e_bar(count, name = "RelationshipSatisfaction") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Work_Life_Balance <- renderEcharts4r({
+    Work_Life_Balance <- data %>% 
+      group_by(WorkLifeBalance) %>%
+      summarise(count= n())%>%
+      e_charts(WorkLifeBalance) %>%
+      e_bar(count, name = "WorkLifeBalance") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
+  
+  output$Performance_Rating <- renderEcharts4r({
+    Performance_Rating <- data %>% 
+      group_by(PerformanceRating) %>%
+      summarise(count= n())%>%
+      e_charts(PerformanceRating) %>%
+      e_bar(count, name = "PerformanceRating") %>%
+      e_tooltip() %>%
+      e_legend() %>%
+      e_flip_coords() %>%
+      e_color(color = "teal", background = "white")  
+  })
   
   ev <- eventReactive(input$btn,{
     input$emp
