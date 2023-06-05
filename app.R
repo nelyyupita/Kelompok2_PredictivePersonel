@@ -14,26 +14,25 @@ left <- c("left", "stay", "","","")
 id <- c(1:1000)
 ui <- dashboardPage(
   dashboardHeader(
-    title = "HR Dashboard"
+    title = "SIKAP"
   ),
   dashboardSidebar(
     sidebarMenu(
       id = "tabs",
-      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-      menuItem("Employee Dashboard", tabName = "emp", icon = icon("user")),
-      menuItem("Employee", tabName = "empp", icon = icon("users"))
+      menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("Attrition Dashboard", tabName = "emp", icon = icon("users")),
+      menuItem("Employee Profiler", tabName = "empp", icon = icon("user")),
+      menuItem("Employee Databases", tabName = "emppp", icon = icon("users"))
     )
   ),
   dashboardBody(
     bookmarkButton(),
     tabItems(
       tabItem(tabName = "dashboard",
-              h1("Ini menu Dashboard"),
+              h1("Main Dashboard"),
               fluidRow(
-                valueBox("2023-06-02","Date",icon = icon("calendar-days"), color = "light-blue",  width = 3),
-                valueBox("3571","Existing Employees", icon = icon("users"),color = "teal",  width = 3),
-                valueBox("169","Work Accidents",icon = icon("briefcase"), color = "orange",  width = 3),
-                valueBox("3552","Unprometed Employees", icon = icon("info"),color = "fuchsia",  width = 3),
+                valueBox(date(),"Date",icon = icon("calendar-days"), color = "aqua",  width = 6),
+                valueBox("1233","Existing Employees", icon = icon("users"),color = "aqua",  width = 6),
               ),
               fluidRow(
                 column(
@@ -104,7 +103,14 @@ ui <- dashboardPage(
         tabName = "empp",
         h1("Employee List"),
         dataTableOutput("dynamic"),
+      ),
+      
+      tabItem(
+        tabName = "emppp",
+        h1("Employee List"),
+        dataTableOutput("dynamic"),
       )
+      
     ),
   )
 )
