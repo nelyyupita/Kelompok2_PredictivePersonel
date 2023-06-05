@@ -19,10 +19,10 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       id = "tabs",
-      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-      menuItem("Employee Dashboard", tabName = "emp", icon = icon("user")),
-      menuItem("Profile Employe", tabName = "profile", icon = icon("person")),
-      menuItem("Employee", tabName = "empp", icon = icon("users"))
+      menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("Attrition Dashboard", tabName = "emp", icon = icon("users")),
+      menuItem("Employee Profiler", tabName = "empp", icon = icon("user")),
+      menuItem("Employee Databases", tabName = "emppp", icon = icon("users"))
       
     )
   ),
@@ -30,12 +30,10 @@ ui <- dashboardPage(
     bookmarkButton(),
     tabItems(
       tabItem(tabName = "dashboard",
-              h1("Ini menu Dashboard"),
+              h1("Main Dashboard"),
               fluidRow(
-                valueBox("2023-06-02","Date",icon = icon("calendar-days"), color = "light-blue",  width = 3),
-                valueBox("3571","Existing Employees", icon = icon("users"),color = "teal",  width = 3),
-                valueBox("169","Work Accidents",icon = icon("briefcase"), color = "orange",  width = 3),
-                valueBox("3552","Unprometed Employees", icon = icon("info"),color = "fuchsia",  width = 3),
+                valueBox(date(),"Date",icon = icon("calendar-days"), color = "aqua",  width = 6),
+                valueBox("1233","Existing Employees", icon = icon("users"),color = "aqua",  width = 6),
               ),
               fluidRow(
                 #Diagram 1
@@ -117,32 +115,35 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "emp",
-        h1("Employee Dashboard"),
-        selectInput("emp","Select Employee by ID", id),
-        actionButton("btn","Filter"), 
-        textOutput("textOutput") ,
-        
-        h1("Employee Data"),
+        h1("Attrition Employee Dashboard"),
         fluidRow(
-          valueBox("sales","Employees Roles", icon = icon("users"),color = "teal",  width = 4),
-          valueBox("2","Employees Number Project", icon = icon("star"),color = "fuchsia",  width = 4),
-          valueBox("low","Employees Salary",icon = icon("plus"), color = "orange",  width = 4),
-          
-          box(width = 12,
-              tags$div(
-                class="container", 
-                tags$h3("Other Information"),
-                tags$p("Avarage Monthly House :"),
-                tags$p("Number Project : 2"),
-                tags$p("Time Spend Company : 3"),
-                tags$p("Work Accident : 0"),
-              )),
-        ),
+          box(
+            width = 4,
+            h2("Attrited vs Existing Employee"), echarts4rOutput("fluidrow1_diagram_pie_1")
+          ),
+          box(
+            width = 8,
+            h2("Attrition by Department"), echarts4rOutput("fluidrow1_diagram_batang_1")
+          )),
         
+        fluidRow(box(h2("Attrition by Job Role"), echarts4rOutput("fluidrow2_diagram_batang2"),width = 12
+        )),
+        
+        fluidRow(
+          box(
+            width = 4,
+            h2("Attrition by Gender", echarts4rOutput("fluidrow3_diagram_pie_3")
+            )),
+          box(
+            width = 8, 
+            h2("Attrition by Stock Level Option", echarts4rOutput("fluidrow3_diagram_batang_3")
+            ))
+        )
       ),
+      
       #Update
       tabItem(
-        tabName = "profile",
+        tabName = "empp",
         h1("Employ Profile"),
         
         selectInput(inputId = "profile", label = "id employee", choices = data$EmployeeNumber),
@@ -182,7 +183,7 @@ ui <- dashboardPage(
       ),
       
       tabItem(
-        tabName = "empp",
+        tabName = "emppp",
         h1("Employee List"),
         dataTableOutput("dynamic"),
       )
@@ -517,6 +518,104 @@ server <- function(input, output) {
       e_flip_coords() %>%
       e_color(color = "teal", background = "white")  
   })
+  
+  
+  #====== Server Halaman Menu 2 =======#
+  
+  #fluidrow_1
+  output$fluidrow1_diagram_pie_1 <- renderEcharts4r({
+    data %>%
+      count(Attrition) %>%
+      mutate(ratio = round(n/sum(n)*100, digits = 2)) %>% 
+      ## memvisualisasikan hasil count(sales) menggunakan echarts4r
+      #selalu diawali e_charts()
+      e_charts(Attrition) %>% 
+      #menampilkan visualisasi menggunakan diagram lingkaran / pie
+      e_pie(ratio, name="Rasio") %>%
+      ##untuk menampilan nilai ketika mouse hover
+      e_tooltip() %>% 
+      ##untuk menampilkan legenda di visualisasi
+      e_legend() %>% 
+      ##mengatur warna color dan background
+      e_color(color = c("#193","#147"), background = "white")
+  })
+  
+  output$fluidrow1_diagram_batang_1  <- renderEcharts4r({
+    data %>% 
+      count(Attrition, Department, name = "Freq") %>% 
+      group_by(Department) %>% 
+      mutate(Ratio = round(Freq * 100 / sum(Freq), digits = 2)) %>% 
+      ungroup() %>% 
+      group_by(Attrition) %>% 
+      e_charts(Department) %>% 
+      e_bar(Ratio) %>% 
+      e_tooltip("axis")
+  })
+  
+  #fluidrow_2
+  output$fluidrow2_diagram_batang2 <- renderEcharts4r({
+    data %>%
+      #1.###### <---- Ubah menggunakan kolom salary ---- >
+      count(Attrition,JobRole) %>% #menghitung jumlah masing-masing value pada kolom sales
+      arrange(n) %>% #men-sorting berdasarkan value n hasil dari count(sales)
+      ## memvisualisasikan hasil count(sales) menggunakan echarts4r
+      #selalu diawali e_charts()
+      group_by(Attrition) %>% 
+      e_charts(JobRole) %>% 
+      #menampilkan visualisasi menggunakan bar plot
+      e_bar(n) %>%
+      ######## <---- ### ---->
+      ##untuk menampilan nilai ketika mouse hover
+      e_tooltip %>% 
+      ##untuk menampilkan legenda di visualisasi
+      e_legend() %>% 
+      ##mengatur warna color dan background
+      e_color(color = c("#193","#147"), background = "white")  
+  })
+  
+  #fluidrow_3
+  output$fluidrow3_diagram_pie_3 <- renderEcharts4r({
+    data %>%
+      #count(Attrition,Gender) %>%
+      filter(Attrition == "Yes") %>% 
+      count(Gender, name = "Rasio") %>% 
+      #arrange(n) %>%
+      mutate(ratio = round(Rasio/sum(Rasio)*100, digits = 2)) %>% 
+      ## memvisualisasikan hasil count(sales) menggunakan echarts4r
+      #selalu diawali e_charts()
+      #group_by(Gender) %>% 
+      e_charts(Gender) %>% 
+      #menampilkan visualisasi menggunakan diagram lingkaran / pie
+      e_pie(ratio) %>%
+      ##untuk menampilan nilai ketika mouse hover
+      e_tooltip() %>% 
+      ##untuk menampilkan legenda di visualisasi
+      e_legend() %>% 
+      ##mengatur warna color dan background
+      e_color(color = c("#193","#147"), background = "white")
+  })
+  
+  output$fluidrow3_diagram_batang_3 <- renderEcharts4r({
+    data %>%
+      #1.###### <---- Ubah menggunakan kolom salary ---- >
+      count(Attrition,StockOptionLevel) %>% #menghitung jumlah masing-masing value pada kolom sales
+      arrange(n) %>% #men-sorting berdasarkan value n hasil dari count(sales)
+      ## memvisualisasikan hasil count(sales) menggunakan echarts4r
+      #selalu diawali e_charts()
+      group_by(Attrition) %>% 
+      e_charts(StockOptionLevel) %>% 
+      #menampilkan visualisasi menggunakan bar plot
+      e_bar(n) %>%
+      ######## <---- ### ---->
+      ##untuk menampilan nilai ketika mouse hover
+      e_tooltip %>% 
+      ##untuk menampilkan legenda di visualisasi
+      e_legend() %>% 
+      ##mengatur warna color dan background
+      e_color(color = c("#193","#147"), background = "white")
+  })
+  
+  #========= Akhir Server Halaman Menu 2 =======#
   
   ev <- eventReactive(input$btn,{
     input$emp
